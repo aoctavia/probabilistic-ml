@@ -4,8 +4,8 @@ site_author: "Octavia"
 docs_dir: docs
 site_dir: site
 
-repo_url: https://github.com/PLACEHOLDER/probabilistic_ml
-repo_name: probabilistic_ml
+repo_url: https://github.com/aoctavia/probabilistic-ml
+repo_name: aoctavia/probabilistic-ml
 
 theme:
   name: material

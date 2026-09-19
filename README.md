@@ -33,8 +33,8 @@ in terms of identifiability, calibration, and computation?
 Requires Python 3.11+ and [uv](https://github.com/astral-sh/uv).
 
 ```bash
-git clone <repo-url>
-cd probabilistic_ml
+git clone https://github.com/aoctavia/probabilistic-ml.git
+cd probabilistic-ml
 uv sync --all-extras
 ```
 
