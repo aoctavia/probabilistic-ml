@@ -257,9 +257,98 @@ while holding all others fixed. This is verified in `tests/test_cavi.py`.
 
 ---
 
-## M3 — Spatial structure
+## M3 — Spatial factor model
 
-> *To be written in Phase 4.*
+Each observation \(i\) is associated with a 2-D spatial coordinate
+\(s_i \in \mathbb{R}^2\) (e.g., a tissue spot location). The key departure
+from M0 is that the factor scores \(Z\) are no longer i.i.d. Gaussian — instead,
+each column of \(Z\) (one score per factor) is drawn from a Gaussian process
+indexed by location:
+
+\[
+z_{\cdot k} \mid \theta_k \sim \mathcal{GP}(0,\, \kappa_{\theta_k}), \quad k = 1, \dots, K
+\]
+
+where \(\kappa_{\theta_k}(s_i, s_j)\) is a kernel function with hyperparameters
+\(\theta_k\) (amplitude \(\alpha_k\) and lengthscale \(\ell_k\)).
+
+The observation model and loading prior are unchanged from M0:
+
+\[
+w_j \sim \mathcal{N}(0, I_K), \qquad
+x_i \mid z_i, W, \tau \sim \mathcal{N}(W z_i, \tau^{-1} I_D)
+\]
+
+### Kernel choice
+
+We use the squared-exponential (RBF) kernel, which produces smooth spatial variation:
+
+\[
+\kappa(s_i, s_j) = \alpha^2 \exp\!\left(-\frac{\|s_i - s_j\|^2}{2\ell^2}\right)
+\]
+
+Each factor \(k\) has its own amplitude \(\alpha_k\) and lengthscale \(\ell_k\),
+allowing factors to operate at different spatial scales.
+
+### Finite-dimensional form
+
+For \(N\) locations, the GP prior on column \(k\) of \(Z\) is an \(N\)-dimensional
+Gaussian:
+
+\[
+z_{\cdot k} \sim \mathcal{N}(0,\, K_k) \in \mathbb{R}^N
+\]
+
+where \(K_k \in \mathbb{R}^{N \times N}\) is the kernel (Gram) matrix with
+\((K_k)_{ij} = \kappa_{\theta_k}(s_i, s_j)\).
+
+This is the prior used in the SVI implementation.
+
+### Inference
+
+The non-conjugate GP prior on \(Z\) precludes analytic CAVI updates for \(q(Z)\).
+We use stochastic variational inference (SVI) with a mean-field Gaussian
+variational family:
+
+\[
+q(z_{\cdot k}) = \mathcal{N}(m_k, \text{diag}(v_k)), \quad k = 1, \dots, K
+\]
+
+where \(m_k \in \mathbb{R}^N\) and \(v_k \in \mathbb{R}^N_{>0}\) are
+variational parameters optimised by gradient ascent on the ELBO.
+
+**ELBO for M3:**
+
+\[
+\mathcal{L}_{M3}
+= \mathbb{E}_q[\log p(X \mid Z, W, \tau)]
+- \sum_k \operatorname{KL}\!\left(\mathcal{N}(m_k, \text{diag}(v_k))
+\,\|\, \mathcal{N}(0, K_k)\right)
+- \operatorname{KL}(q(W) \| p(W))
+- \operatorname{KL}(q(\tau) \| p(\tau))
+\]
+
+The KL between two Gaussians is analytic:
+
+\[
+\operatorname{KL}(\mathcal{N}(m, \Sigma_q) \| \mathcal{N}(0, K))
+= \frac{1}{2}\!\left(
+  \operatorname{tr}(K^{-1}\Sigma_q)
+  + m^\top K^{-1} m
+  - N
+  + \log\det K - \log\det \Sigma_q
+\right)
+\]
+
+**Computational bottleneck:** computing \(K^{-1}\) naively costs \(\mathcal{O}(N^3)\).
+For \(N \sim 10^4\) spots (typical Visium), this is infeasible. We address this
+via:
+1. Inducing-point approximation (sparse GP): \(M \ll N\) inducing locations,
+   reducing cost to \(\mathcal{O}(NM^2)\).
+2. Minibatching over spots in the likelihood term.
+
+> *Implementation: `src/sfm/models/m3_spatial.py`, `src/sfm/inference/svi.py`*
+> *(Phase 4 on the main branch; implemented here on topic/spatial-transcriptomics)*
 
 ---
 

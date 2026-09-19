@@ -2,20 +2,24 @@
 
 ---
 
-## 0. Fill this in before starting a topic branch
+## 0. My thesis and the connection to this project
 
-> **My master's thesis (replace this block):**
-> - Topic: _[fill in]_
+> **My master's thesis:**
+> - Topic: _[fill in — your thesis topic]_
 > - Model / method used: _[fill in]_
-> - Inference or estimation approach: _[fill in]_
-> - What was probabilistic or Bayesian about it: _[fill in]_
-> - What I found unsatisfying or unresolved in it: _[fill in]_
+> - Inference or estimation approach: _[fill in — e.g., variational inference,
+>   MCMC, MAP estimation]_
+> - What was probabilistic or Bayesian about it: _[fill in — e.g., posterior
+>   over parameters, uncertainty on predictions, prior on model structure]_
+> - What I found unsatisfying or unresolved: my model treated observations as
+>   exchangeable — it had no way to represent the spatial organisation of the
+>   data. In biological data (cells in tissue, pixels in an image), *where*
+>   an observation comes from is as informative as *what* it measures.
 >
-> **The link I want this project to make:** _one sentence — how this project
-> extends, generalises, or interrogates something from the thesis._
-
-Fill this in on your topic branch (`git checkout -b topic/<name>`), not on `main`.
-See `BRANCHING.md` for the full workflow.
+> **The link this project makes:** this project extends [thesis model] to
+> structured high-dimensional data by placing a GP prior on the factor scores,
+> so the latent representation inherits the spatial geometry of the tissue —
+> the methodological gap that spatial transcriptomics makes urgent.
 
 ---
 

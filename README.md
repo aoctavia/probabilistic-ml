@@ -1,16 +1,28 @@
-# Structured Probabilistic Factor Models
+# Structured Probabilistic Factor Models for Spatial Transcriptomics
 
-> **This README will be rewritten in Phase 6 with actual findings.**
-> See `BRANCHING.md` for how to customise this for a specific PhD application.
-> Fill in `BRIEF.md` Section 0 before writing the introduction.
+> **Branch:** `topic/spatial-transcriptomics`
+> **Findings section** will be written in Phase 6, once experiments are complete.
 
 ---
 
 ## Research question
 
-Under what conditions can a structured Bayesian factor model recover interpretable
-latent structure from high-dimensional data, and what does imposing structure cost
-in terms of identifiability, calibration, and computation?
+Under what conditions can a spatially-structured Bayesian factor model recover
+interpretable latent organisation from high-dimensional transcriptomic data,
+and what does imposing spatial structure cost in terms of identifiability,
+calibration, and computation?
+
+**Sub-questions:**
+
+- **Q1 — Recovery.** Does placing a GP prior on factor scores improve latent
+  factor recovery when data has genuine spatial organisation, and when does it
+  hurt when spatial assumptions are violated?
+- **Q2 — Identifiability.** How do the rotational and permutation invariances
+  of factor models interact with a spatial prior, and what constraints are
+  needed for the posterior to be interpretable?
+- **Q3 — Inference trade-off.** Mean-field CAVI, stochastic VI, and MCMC on the
+  same model: how do accuracy, calibration, and wall-clock time scale as the
+  number of spatial locations grows?
 
 ---
 
@@ -18,13 +30,43 @@ in terms of identifiability, calibration, and computation?
 
 | Phase | Description | Status |
 |-------|-------------|--------|
-| 0 | Scaffold: tooling, CI, simulators, docs skeleton | ✅ complete |
-| 1 | M0 baseline + CAVI inference + E1 recovery | ⬜ |
-| 2 | MCMC reference + E3 identifiability | ⬜ |
-| 3 | M1/M2 sparse/ARD + E4 calibration | ⬜ |
-| 4 | M3 spatial + SVI + E5 scaling | ⬜ |
-| 5 | M4 multi-view + E2 misspecification | ⬜ |
-| 6 | E6 real data + final writing | ⬜ |
+| 0 | Scaffold: tooling, CI, simulators, docs skeleton | ✅ |
+| 1 | M0 baseline (probabilistic PCA) + CAVI + E1 recovery | ✅ |
+| 2 | MCMC reference + E3 identifiability analysis | 🔄 in progress |
+| 3 | M1/M2 sparse/ARD | ⬜ |
+| 4 | **M3 spatial GP factor model + SVI** | ⬜ |
+| 5 | M4 multi-view | ⬜ |
+| 6 | E6 spatial transcriptomics (Visium) + final writing | ⬜ |
+
+---
+
+## Key methodological contributions
+
+- **M3 — Spatial factor model.** A GP prior on each column of the factor score
+  matrix \(Z\), indexed by spatial coordinates \(s_i\). Factor scores vary
+  smoothly in space; the kernel lengthscale controls the spatial scale of
+  the inferred programmes.
+- **Identifiability analysis.** Empirical demonstration of how rotational
+  invariance manifests in MCMC output and how the spatial prior partially
+  resolves it — a question that arises directly in spatial transcriptomics,
+  where factors are interpreted as gene expression programmes localised in tissue.
+- **Scalable SVI.** JAX-based stochastic VI with reparameterised gradients and
+  minibatching over spatial locations, making the spatial model feasible for
+  tissue-scale datasets (N ~ 10^4 spots).
+
+---
+
+## Phase 1 results (M0 baseline)
+
+E1 sweep over N, D, K, tau — key findings:
+
+- Factor recovery (matched correlation) improves monotonically with D and with
+  moderate N; subspace distance < 0.2 at N=1000, D=50, K=4.
+- Recovery degrades gracefully as K increases — no phase transition observed
+  in this regime.
+- At high SNR (tau=10), CAVI does not declare convergence within 500 iterations
+  despite good subspace distance (0.09). Slow mixing near the optimum at
+  high precision — documented as a limitation of CAVI for the M0 model.
 
 ---
 
@@ -35,54 +77,14 @@ Requires Python 3.11+ and [uv](https://github.com/astral-sh/uv).
 ```bash
 git clone <repo-url>
 cd probabilistic_ml
+git checkout topic/spatial-transcriptomics
 uv sync --all-extras
 ```
 
-Run tests:
-
 ```bash
-make test
-```
-
-Lint and type-check:
-
-```bash
-make check
-```
-
-Build docs:
-
-```bash
-make docs
-make serve-docs  # serve at http://127.0.0.1:8000
-```
-
----
-
-## Repository structure
-
-```
-src/sfm/
-├── models/         M0–M4 model definitions
-├── inference/      CAVI, SVI, MCMC
-├── diagnostics/    alignment, SBC, coverage
-├── simulate.py     generative simulators
-└── viz.py          shared plotting utilities
-
-experiments/
-├── e1_recovery/    phase diagram: recovery vs. N, D, K, tau
-├── e2_misspecification/
-├── e3_identifiability/
-├── e4_calibration/
-├── e5_scaling/
-└── e6_real_data/
-
-docs/
-├── methods.md      full derivations
-├── identifiability.md
-├── inference.md
-├── results.md      findings (Phase 6)
-└── limitations.md
+make test     # 28 pass, 4 skip (stubs for later phases)
+make check    # lint + typecheck + test
+make docs     # build MkDocs site
 ```
 
 ---
@@ -93,24 +95,44 @@ docs/
 make reproduce
 ```
 
-This runs all experiments in order (E1–E5) and regenerates all figures from
-the stored results. Each experiment is driven by a config file and a seed.
+Reruns all experiments from config files and seeds, then regenerates figures.
 
 ---
 
-## Topic branches
+## What this reimplements vs. what is original
 
-This scaffold is designed to be adapted for specific PhD applications. See
-[BRANCHING.md](BRANCHING.md) for the strategy and available topic branches.
+| Component | Status |
+|-----------|--------|
+| M0 probabilistic PCA | Reimplementation of Tipping & Bishop (1999) |
+| CAVI for M0 | Original derivation and implementation |
+| M3 spatial GP factor model | Original; related to Svensson et al. (2020), Townes & Engelhardt (2023) |
+| SVI for M3 | Original JAX implementation |
+| Identifiability analysis | Original empirical study |
+| MCMC reference | NumPyro (off-the-shelf, not a contribution) |
 
 ---
 
-## What this reimplements
+## Repository structure
 
-- **M0** — probabilistic PCA (Tipping & Bishop, 1999)
-- **M1/M2** — horseshoe-regularised factor model, ARD prior
-- **M3** — spatial factor model with GP prior on scores
-- **M4** — multi-view factor model (MOFA-style, Argelaguet et al., 2018)
+```
+src/sfm/
+├── models/         M0–M4 model definitions
+├── inference/      cavi.py, svi.py (Phase 4), mcmc.py (Phase 2)
+├── diagnostics/    alignment.py, sbc.py (Phase 3), coverage.py (Phase 3)
+├── simulate.py     generative simulators (M0 done; M3 spatial in Phase 4)
+└── viz.py
 
-The inference implementations (CAVI, JAX SVI) are original.
-The MCMC reference uses NumPyro as an off-the-shelf tool.
+experiments/
+├── e1_recovery/    ✅ sweep N/D/K/tau, figures generated
+├── e3_identifiability/   Phase 2
+├── e4_calibration/       Phase 3
+├── e5_scaling/           Phase 4
+└── e6_real_data/         Phase 6 — 10x Genomics Visium
+
+docs/
+├── methods.md      M0 derivation complete; M3 in Phase 4
+├── identifiability.md
+├── inference.md
+├── results.md      Phase 6
+└── limitations.md  Phase 6
+```
