@@ -75,8 +75,8 @@ E1 sweep over N, D, K, tau — key findings:
 Requires Python 3.11+ and [uv](https://github.com/astral-sh/uv).
 
 ```bash
-git clone https://github.com/aoctavia/probalistic_ml.git
-cd probalistic_ml
+git clone https://github.com/aoctavia/probabilistic-ml.git
+cd probabilistic-ml
 git checkout topic/spatial-transcriptomics
 uv sync --all-extras
 ```
