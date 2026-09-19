@@ -1,0 +1,60 @@
+site_name: "Structured Probabilistic Factor Models"
+site_description: "Research artifact: structured Bayesian factor models with scalable inference"
+site_author: "Octavia"
+docs_dir: docs
+site_dir: site
+
+repo_url: https://github.com/PLACEHOLDER/probabilistic_ml
+repo_name: probabilistic_ml
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - toc.integrate
+    - content.code.copy
+
+plugins:
+  - search
+
+markdown_extensions:
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - admonition
+  - pymdownx.details
+  - toc:
+      permalink: true
+
+extra_javascript:
+  - javascripts/mathjax.js
+  - https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js
+
+nav:
+  - Home: index.md
+  - Methods:
+      - Overview: methods.md
+      - Identifiability: identifiability.md
+      - Inference: inference.md
+  - Results:
+      - Findings: results.md
+      - Limitations: limitations.md

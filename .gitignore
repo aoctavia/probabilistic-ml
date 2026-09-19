@@ -1,0 +1,52 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# uv
+.uv/
+
+# Tooling caches
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# MkDocs
+site/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Experiment outputs — results and figures are gitignored by default
+# to keep the repo lightweight. Use `make reproduce` to regenerate.
+experiments/*/results/*
+experiments/*/figures/*
+
+# But keep the directory structure
+!experiments/*/results/.gitkeep
+!experiments/*/figures/.gitkeep
+
+# Real data files (can be large)
+data/
+*.h5
+*.h5ad
+*.loom
+*.mtx
+*.gz

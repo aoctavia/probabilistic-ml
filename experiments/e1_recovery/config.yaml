@@ -1,0 +1,22 @@
+# E1 — Recovery under known truth
+# Filled in Phase 1.
+experiment: e1_recovery
+seed: 42
+
+# Parameter sweep
+sweep:
+  N: [100, 500, 1000]
+  D: [20, 50, 100]
+  K: [3, 5, 10]
+  tau: [0.5, 2.0, 10.0]
+
+# Fixed dimensions for the other axes when sweeping one
+defaults:
+  N: 500
+  D: 50
+  K: 4
+  tau: 2.0
+
+# Number of CAVI iterations
+cavi_max_iter: 500
+cavi_tol: 1.0e-4
